@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -513,6 +514,7 @@ public class IMSPOXRequest {
 			"	<imsx_POXHeader>"+
 			"		<imsx_POXRequestHeaderInfo>"+
 			"			<imsx_version>V1.0</imsx_version>"+
+			"           <imsx_messageIdentifier>%s</imsx_messageIdentifier>" +
 			"		</imsx_POXRequestHeaderInfo>"+
 			"	</imsx_POXHeader>"+
 			"	<imsx_POXBody>"+
@@ -560,7 +562,12 @@ public class IMSPOXRequest {
 			String format = isUrl ? resultDataUrl : resultDataText;
 			dataXml = String.format(format, StringEscapeUtils.escapeXml(resultData));
 		}
-		String xml = String.format(replaceResultMessage, StringEscapeUtils.escapeXml(sourcedid),
+		
+		// GIFT_CUSTOMIZATION
+		// The messageIdentifier is required for integration with edX (or any tool that does schema validation).
+		// Note that edX does NOT seem to care what the value is, but for now a unique id will be generated for each message (per the spec).
+		String messageIdentifier = UUID.randomUUID().toString();
+		String xml = String.format(replaceResultMessage, messageIdentifier, StringEscapeUtils.escapeXml(sourcedid),
 				StringEscapeUtils.escapeXml(score), dataXml);
 
 		HttpParameters parameters = new HttpParameters();
